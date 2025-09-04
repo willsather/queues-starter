@@ -1,4 +1,4 @@
-import QueueDemo from './components/QueueDemo';
+import QueueDemo from './components/queue-demo';
 
 export default function Home() {
   return (
