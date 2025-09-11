@@ -1,15 +1,59 @@
-import { SendMessage } from "@/components/send-message";
+"use client";
+
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getMessages } from "@/lib/actions";
+import { Textarea } from "@/components/ui/textarea";
+import { getMessages, sendMessage } from "@/lib/actions";
 import type { Message } from "@/lib/messages";
 import { ArrowRight, CheckCircle, Clock, Loader2, Send } from "lucide-react";
+import { useEffect, useState } from "react";
 
-export default async function HomePage() {
-  const messages = await getMessages();
+interface QueueStats {
+  totalMessages: number;
+  processed: number;
+}
 
-  const stats = {
-    total: messages.length,
-    processed: messages.filter((m) => m.status === "completed").length,
+export function QueueDashboard() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [stats, setStats] = useState<QueueStats>({
+    totalMessages: 0,
+    processed: 0,
+  });
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const messages = await getMessages();
+
+        setMessages(messages);
+      } catch (error) {
+        console.error("[v0] Error fetching messages:", error);
+      }
+    };
+
+    void fetchMessages();
+    const interval = setInterval(fetchMessages, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const totalMessages = messages.length;
+    const processed = messages.filter((m) => m.status === "completed").length;
+
+    setStats({ totalMessages, processed });
+  }, [messages]);
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim()) return;
+
+    const result = await sendMessage(newMessage);
+    console.log("[v0] Message sent to queue:", result);
+    setNewMessage("");
+  };
+
+  const clearMessages = () => {
+    setMessages([]);
   };
 
   const getStatusIcon = (status: Message["status"]) => {
@@ -38,7 +82,7 @@ export default async function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="font-bold text-2xl">{stats.total}</div>
+            <div className="font-bold text-2xl">{stats.totalMessages}</div>
           </CardContent>
         </Card>
 
@@ -61,8 +105,23 @@ export default async function HomePage() {
             Send Message
           </CardTitle>
         </CardHeader>
-
-        <SendMessage />
+        <CardContent className="space-y-4">
+          <Textarea
+            placeholder="Enter your message payload..."
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            className="min-h-[100px]"
+          />
+          <div className="flex gap-2">
+            <Button onClick={handleSendMessage} disabled={!newMessage.trim()}>
+              <Send className="mr-2 h-4 w-4" />
+              Send to Queue
+            </Button>
+            <Button variant="outline" onClick={clearMessages}>
+              Clear All
+            </Button>
+          </div>
+        </CardContent>
       </Card>
 
       <Card>
@@ -120,13 +179,3 @@ export default async function HomePage() {
     </div>
   );
 }
-
-// import { QueueDashboard } from "@/components/queue-dashboard";
-//
-// export default function Home() {
-//   return (
-//     <main className="min-h-screen bg-gray-50 py-8">
-//       <QueueDashboard />
-//     </main>
-//   );
-// }
