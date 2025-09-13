@@ -4,9 +4,9 @@ import { type NextRequest, NextResponse } from "next/server";
 import type { IncomingMessage, Message } from "@/lib/messages";
 import { wait } from "@/lib/wait";
 
-export const messages = new Map<string, Message>();
+const messages = new Map<string, Message>();
 
-export function GET(_request: NextRequest) {
+export async function GET(_request: NextRequest) {
   return NextResponse.json(Array.from(messages.values()));
 }
 
