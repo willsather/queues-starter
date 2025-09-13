@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { getMessages } from "@/lib/actions";
 import type { Message } from "@/lib/messages";
 
 export default function Messages() {
@@ -10,8 +9,8 @@ export default function Messages() {
 
   const fetchInvocations = useCallback(async () => {
     try {
-      const newMessages = await getMessages();
-      setMessages(newMessages ?? []);
+      const response = await fetch("/api/queue/consumer");
+      setMessages((await response.json()) ?? []);
     } catch (error) {
       console.error("Error fetching messages:", error);
     }
