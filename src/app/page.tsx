@@ -1,3 +1,4 @@
+import Messages from "@/components/messages";
 import { SendMessage } from "@/components/send-message";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getMessages } from "@/lib/actions";
@@ -73,60 +74,9 @@ export default async function HomePage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {messages.length === 0 ? (
-            <div className="py-12 text-center text-muted-foreground">
-              <Clock className="mx-auto mb-4 h-12 w-12 opacity-50" />
-              <p>No messages in queue. Send a message to get started!</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className="flex items-center gap-4 rounded-lg border bg-card p-4"
-                >
-                  <div className="flex items-center gap-2">
-                    {getStatusIcon(message.status)}
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium text-sm">
-                      {message.content}
-                    </p>
-                    <p className="text-muted-foreground text-xs">
-                      {new Date(message.timestamp).toLocaleTimeString()}
-                      {message.endTime && message.startTime && (
-                        <span className="ml-2">
-                          • Processed in {message.endTime - message.startTime}ms
-                        </span>
-                      )}
-                      {message.waitTime && (
-                        <span className="ml-2">
-                          • Wait time: {message.waitTime}ms
-                        </span>
-                      )}
-                    </p>
-                  </div>
-
-                  <div className="text-muted-foreground text-xs">
-                    ID: {message.id.slice(-6)}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <Messages />
         </CardContent>
       </Card>
     </div>
   );
 }
-
-// import { QueueDashboard } from "@/components/queue-dashboard";
-//
-// export default function Home() {
-//   return (
-//     <main className="min-h-screen bg-gray-50 py-8">
-//       <QueueDashboard />
-//     </main>
-//   );
-// }
